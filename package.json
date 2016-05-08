@@ -1,0 +1,15 @@
+{
+  "name": "node-ultimate-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Martin Kadlec",
+  "license": "ISC",
+  "dependencies": {
+    "ect": "^0.5.9",
+    "express": "^4.13.4"
+  }
+}
