@@ -1,17 +1,40 @@
-var express = require('express');
-var app = express();
+var cluster = require('cluster');
 
-var ECT = require('ect');
-var ectRenderer = ECT({ watch: false, root: __dirname + '/views', ext : '.ect' });
+if (cluster.isMaster) {
+    var numWorkers = require('os').cpus().length;
 
-app.set('view engine', 'ect');
-app.engine('ect', ectRenderer.render);
+    console.log('Master cluster setting up ' + numWorkers + ' workers...');
 
-app.get('/', function (req, res){
-    res.render('index', { title: 'NODE SERVER', ultimateAnswer: 42 });
-});
+    for(var i = 0; i < numWorkers; i++) {
+        cluster.fork();
+    }
 
-app.listen(3000, function() {
-	console.log('Listening on port 3000');	
-});
+    cluster.on('online', function(worker) {
+        console.log('Worker ' + worker.process.pid + ' is online');
+    });
 
+    cluster.on('exit', function(worker, code, signal) {
+        console.log('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
+        console.log('Starting a new worker');
+        cluster.fork();
+    });
+} else {
+
+	var express = require('express');
+	var app = express();
+
+	var ECT = require('ect');
+	var ectRenderer = ECT({ watch: false, root: __dirname + '/views', ext : '.ect' });
+
+	app.set('view engine', 'ect');
+	app.engine('ect', ectRenderer.render);
+
+	app.get('/', function (req, res){
+	    res.render('index', { title: 'NODE SERVER', ultimateAnswer: 42 });
+	});
+
+	app.listen(3000, function() {
+		console.log('Listening on port 3000');	
+	});
+
+}
